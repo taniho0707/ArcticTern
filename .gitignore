@@ -1,0 +1,9 @@
+Drivers/*
+build/*
+*.log
+*.png
+*.jpg
+TAGS
+plot/*
+*.tmp
+
