@@ -1,6 +1,7 @@
 #include "main.h"
 #include "stm32f7xx_hal.h"
 
+#include "ComPc.h"
 
 int main(void) {
 	HAL_Init();
