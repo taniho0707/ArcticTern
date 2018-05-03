@@ -30,16 +30,9 @@ OPT = -Og
 #######################################
 # source path
 SOURCES_DIR =  \
-Application/User/Src \
-Drivers \
-Application/User/Src/stm32f7xx_it.c \
 Drivers/STM32F7xx_HAL_Driver \
-Application \
 Drivers/CMSIS \
-Application/User/Src/stm32f7xx_hal_msp.c \
-Application/User/Src/main.c \
-Application/MAKEFILE \
-Application/User
+Drivers
 
 # firmware library path
 PERIFLIB_PATH = 
@@ -74,8 +67,11 @@ Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c \
 Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c \
 Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr.c \
 Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c \
-Src/stm32f7xx_it.c \
-Src/main.c
+Src/stm32f7xx_it.c
+
+# C++ sources
+CPP_SOURCES = \
+$(wildcard Src/*.cpp)
 
 # ASM sources
 ASM_SOURCES =  \
@@ -93,8 +89,8 @@ PERIFLIB_SOURCES =
 #######################################
 BINPATH = /usr/bin
 PREFIX = arm-none-eabi-
-CC = $(BINPATH)/$(PREFIX)gcc
-AS = $(BINPATH)/$(PREFIX)gcc -x assembler-with-cpp
+CC = $(BINPATH)/$(PREFIX)g++
+AS = $(BINPATH)/$(PREFIX)g++ -x assembler-with-cpp
 CP = $(BINPATH)/$(PREFIX)objcopy
 AR = $(BINPATH)/$(PREFIX)ar
 SZ = $(BINPATH)/$(PREFIX)size
@@ -111,7 +107,7 @@ CPU = -mcpu=cortex-m7
 FPU = -mfpu=fpv5-d16
 
 # float-abi
-FLOAT-ABI = -mfloat-abi=hard
+FLOAT-ABI = -mfloat-abi=softfp
 
 # mcu
 MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
@@ -123,11 +119,13 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32F765xx
+-DSTM32F765xx \
+-D__FPU_PRESENT
+# -DARM_MATH_CM4
 
 
 # AS includes
-AS_INCLUDES = 
+AS_INCLUDES =  -x assembler-with-cpp
 
 # C includes
 C_INCLUDES =  \
@@ -141,7 +139,8 @@ C_INCLUDES =  \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections \
+-fmessage-length=0 -fexceptions -fno-rtti -funsigned-char -fpermissive -fno-use-cxa-atexit -std=c++17 -Wno-narrowing
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
@@ -159,9 +158,12 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDSCRIPT = STM32F765VITx_FLASH.ld
 
 # libraries
-LIBS = -lc -lm -lnosys
+LIBS = -lc -lm -lnosys \
+-lgcc -lrdimon -lstdc++
+
 LIBDIR =
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -specs=rdimon.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections -u _printf_float \
+-Wl,-lgcc,-lc,-lm,-lrdimon,--gc-sections --static
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -170,12 +172,15 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 #######################################
 # build the application
 #######################################
-# list of objects
-OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
-vpath %.c $(sort $(dir $(C_SOURCES)))
+# list of C++ program objects
+OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(CPP_SOURCES:.cpp=.o)))
+vpath %.cpp $(sort $(dir $(CPP_SOURCES)))
 # list of ASM program objects
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
+# list of objects
+OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
+vpath %.c $(sort $(dir $(C_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
