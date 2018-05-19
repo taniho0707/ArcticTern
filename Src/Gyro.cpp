@@ -4,44 +4,13 @@
 #include "Gyro.h"
 
 Gyro::Gyro() :
-	Spi(port, GPIOE, GPIO_PIN_15),
+	Spi(),
 	lsb2dps(0.03354),
 	lsb2mps(0.000049762),
 	zero_gyroz(0.0),
 	zero_accelx(0.0)
 {
-	__HAL_RCC_SPI4_CLK_ENABLE();
-	__HAL_RCC_GPIOE_CLK_ENABLE();
-
-	GPIO_InitTypeDef GPIO_InitStruct;
-	GPIO_InitStruct.Pin = GPIO_PIN_15;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
-	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.Alternate = GPIO_AF5_SPI4;
-	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-	port.Instance = SPI4;
-	port.Init.Mode = SPI_MODE_MASTER;
-	port.Init.Direction = SPI_DIRECTION_2LINES;
-	port.Init.DataSize = SPI_DATASIZE_8BIT;
-	port.Init.CLKPolarity = SPI_POLARITY_HIGH;
-	port.Init.CLKPhase = SPI_PHASE_2EDGE;
-	port.Init.NSS = SPI_NSS_SOFT;
-	port.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
-	port.Init.FirstBit = SPI_FIRSTBIT_MSB;
-	port.Init.TIMode = SPI_TIMODE_DISABLE;
-	port.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-	port.Init.CRCPolynomial = 10;
-	HAL_SPI_Init(&port);
-
-	setTypeDef(port);
+	initialize(SPI4, GPIOE, GPIO_PIN_15);
 
 	total_angle = 0.0f;
 	
@@ -69,10 +38,6 @@ bool Gyro::whoami(){
 	std::vector<uint8_t> readdata(2);
 	writedata[0] = static_cast<uint8_t>(GyroCommands::WHO_AM_I) | 0x80;
 	readdata[0] = 0x00;
-
-	uint8_t bulkdata = 0x0;
-	HAL_SPI_Transmit(&port, &bulkdata, 1, 1000);
-	HAL_Delay(1);
 
 	auto retval = rwMultiByte(readdata, writedata, 1, 1);
 

@@ -74,7 +74,10 @@ int main(void) {
 		else ComPc::getInstance()->printf("WHO AM I...?\n");
 	}
 
-	
+	// ADC CONN 3
+	{
+		
+	}
 
 	while (1) {
 

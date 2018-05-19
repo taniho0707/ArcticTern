@@ -106,8 +106,6 @@ enum class GyroCommands : uint8_t {
 class Gyro : protected Spi{
 private:
 
-	SPI_HandleTypeDef port;
-	
 	const float lsb2dps;
 	const float lsb2mps;
 	float zero_gyroz;

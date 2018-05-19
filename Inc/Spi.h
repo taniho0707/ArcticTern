@@ -21,6 +21,8 @@ protected:
 
 	uint8_t buffer[8];
 
+	void initialize(SPI_TypeDef *spi, GPIO_TypeDef *gpio, uint16_t gpiopin);
+
 	void setChipSelect();
 	void resetChipSelect();
 
@@ -34,8 +36,6 @@ protected:
 		std::vector<uint8_t> &data_read, const std::vector<uint8_t> &data_write,
 		const uint8_t num_read, const uint8_t num_write);
 
-	void setTypeDef(SPI_HandleTypeDef spi);
-
 public:
-	Spi(SPI_HandleTypeDef spi, GPIO_TypeDef *gpio, uint16_t gpiopin);
+	Spi();
 };
