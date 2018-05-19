@@ -6,4 +6,5 @@ build/*
 TAGS
 plot/*
 *.tmp
+.vscode/*
 
