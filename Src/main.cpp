@@ -2,6 +2,7 @@
 #include "stm32f7xx_hal.h"
 
 #include "ComPc.h"
+#include "Gyro.h"
 
 int main(void) {
 	HAL_Init();
@@ -31,26 +32,26 @@ int main(void) {
 
 	// Motor2
 	{
-		__HAL_RCC_GPIOA_CLK_ENABLE();
-		__HAL_RCC_GPIOC_CLK_ENABLE();
-		GPIO_InitTypeDef GPIO_InitStruct;
-		GPIO_InitStruct.Pin = GPIO_PIN_3;
-		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-		GPIO_InitStruct.Pull = GPIO_NOPULL;
-		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+		// __HAL_RCC_GPIOA_CLK_ENABLE();
+		// __HAL_RCC_GPIOC_CLK_ENABLE();
+		// GPIO_InitTypeDef GPIO_InitStruct;
+		// GPIO_InitStruct.Pin = GPIO_PIN_3;
+		// GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		// GPIO_InitStruct.Pull = GPIO_NOPULL;
+		// HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		// HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
 
-		GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
-		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+		// GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+		// HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+		// HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
+		// HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
 
-		for (int i=0; i<1000; ++i) {
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
-			HAL_Delay(1);
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
-			HAL_Delay(1);
-		}
+		// for (int i=0; i<1000; ++i) {
+		// 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+		// 	HAL_Delay(1);
+		// 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+		// 	HAL_Delay(1);
+		// }
 	}
 
 
@@ -61,33 +62,19 @@ int main(void) {
 		HAL_Delay(1);
 	}
 
-	HAL_Delay(300);
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
-	HAL_Delay(300);
+	// HAL_Delay(300);
+	// HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+	// HAL_Delay(300);
 
-	// __HAL_RCC_USART1_CLK_ENABLE();
-	// char usartdata = 'Y';
-	// MX_USART1_UART_Init();
-	// HAL_UART_Transmit(&huart1, &usartdata, 1, 1000);
+	ComPc::getInstance()->printf("Hello STM32F7 Series!\n");
 
-	// MX_GPIO_Init();
-	// MX_SPI4_Init();
-	// HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET);
+	// Gyro WHOAMI
+	{
+		if (Gyro::getInstance()->whoami()) ComPc::getInstance()->printf("I AM LSM6DS3USTR!\n");
+		else ComPc::getInstance()->printf("WHO AM I...?\n");
+	}
 
-	// uint8_t bulkdata = 0x0;
-	// HAL_SPI_Transmit(&hspi4, &bulkdata, 1, 1000);
-	// HAL_Delay(1);
-
-	// uint8_t readdata = 0x0;
-	// uint8_t writedata = 0x8F;
-	// HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_RESET);
-	// HAL_SPI_TransmitReceive(&hspi4, &writedata, &bulkdata, 1, 1000);
-	// HAL_SPI_TransmitReceive(&hspi4, &bulkdata, &readdata, 1, 1000);
-	// HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET);
-
-	// if (readdata == 0x69) {
-	// 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
-	// }
+	
 
 	while (1) {
 
@@ -644,27 +631,6 @@ void SystemClock_Config(void) {
 // 	}
 
 // 	HAL_TIM_MspPostInit(&htim9);
-
-// }
-
-// /* USART1 init function */
-// static void MX_USART1_UART_Init(void)
-// {
-
-// 	huart1.Instance = USART1;
-// 	huart1.Init.BaudRate = 115200;
-// 	huart1.Init.WordLength = UART_WORDLENGTH_7B;
-// 	huart1.Init.StopBits = UART_STOPBITS_1;
-// 	huart1.Init.Parity = UART_PARITY_NONE;
-// 	huart1.Init.Mode = UART_MODE_TX_RX;
-// 	huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-// 	huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-// 	huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-// 	huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-// 	if (HAL_UART_Init(&huart1) != HAL_OK)
-// 	{
-// 		_Error_Handler(__FILE__, __LINE__);
-// 	}
 
 // }
 
