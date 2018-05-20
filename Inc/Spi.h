@@ -32,9 +32,15 @@ protected:
 	int readMultiByte(std::vector<uint8_t> &data, const uint8_t num);
 	int writeMultiByte(const std::vector<uint8_t> &data, const uint8_t num);
 
+	// 複数バイトを書き込み，読み出しを行う関数です
 	int rwMultiByte(
 		std::vector<uint8_t> &data_read, const std::vector<uint8_t> &data_write,
 		const uint8_t num_read, const uint8_t num_write);
+
+	// 複数バイトの同時書き込み読み出しを行う関数です
+	int rwAllMultiByte(
+		std::vector<uint8_t> &data_read, const std::vector<uint8_t> &data_write,
+		const uint8_t num_readwrite);
 
 public:
 	Spi();
