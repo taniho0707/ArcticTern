@@ -99,6 +99,14 @@ void SysTick_Handler(void) {
 	HAL_SYSTICK_IRQHandler();
 }
 
+
+void EXTI15_10_IRQHandler() {
+	/// @todo 全ピンの内容を書く
+	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET) {
+		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_14);
+	}
+}
+
 /******************************************************************************/
 /* STM32F7xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
