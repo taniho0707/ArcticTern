@@ -20,9 +20,11 @@ TARGET = ArcticTern
 # building variables
 ######################################
 # debug build?
-DEBUG = 1
+DEBUG = 0
+#1
 # optimization
-OPT = -Og
+OPT =
+#-Og
 
 
 #######################################
