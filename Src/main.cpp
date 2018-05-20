@@ -84,6 +84,8 @@ int main(void) {
 			SPI2, GPIOB, GPIO_PIN_11,
 			GPIOD, GPIO_PIN_14, EXTI15_10_IRQn,
 			GPIOB, GPIO_PIN_12);
+		linesensormodule.configAutomatic();
+		HAL_Delay(1);
 		int16_t data;
 
 		while(1) {
@@ -91,7 +93,7 @@ int main(void) {
 			HAL_Delay(1);
 			linesensormodule.updateSingleChannel(LineSensorModuleNumber::S0);
 			data = linesensormodule.getSingleChannel(LineSensorModuleNumber::S0);
-			ComPc::getInstance()->printf("(%2X) %d\n", data, data);
+			ComPc::getInstance()->printf("(%4X) %d\n", data, data);
 			HAL_Delay(100);
 		}
 	}

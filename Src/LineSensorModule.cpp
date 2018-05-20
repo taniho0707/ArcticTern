@@ -55,6 +55,20 @@ void LineSensorModule::initialize(
 }
 
 bool LineSensorModule::configAutomatic(){
+	uint8_t writedata[2] = {};
+	uint8_t readdata[2] = {};
+	
+	// ADC Configuration Resister
+	writedata[0] = static_cast<uint8_t>(MAX11125Commands::ADC_CONFIGURATION) |
+		0b00000'0'00;
+	writedata[1] = 0b0'00'00'1'00;
+	// rwAllMultiByte(readdata, writedata, 2);
+	setChipSelect();
+	HAL_SPI_TransmitReceive(&port, writedata, readdata, 2, 1000);
+	resetChipSelect();
+
+	ComPc::getInstance()->printf("command [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
+
 	return true;
 }
 
@@ -73,25 +87,19 @@ bool LineSensorModule::whoami(){
 void LineSensorModule::readSingleChannel(LineSensorModuleNumber number) {
 	// シングルスキャンしてconverted_rawに代入する
 	/// @todo シャットダウンするように変更
-	uint8_t writedata[2];
-	uint8_t readdata[2];
+	uint8_t writedata[2] = {};
+	uint8_t readdata[2] = {};
 	writedata[0] = 0b0'0001'000 | (static_cast<uint8_t>(number) >> 1);
-	writedata[1] = 0b0'00'00'1'10 | (static_cast<uint8_t>(number) << 7);
-	readdata[0] = 0x00;
-	readdata[1] = 0x00;
+	writedata[1] = 0b0'00'00'1'00 | (static_cast<uint8_t>(number) << 7);
 	rwAllMultiByte(readdata, writedata, 2);
 	ComPc::getInstance()->printf("command [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
 }
 
 void LineSensorModule::updateSingleChannel(LineSensorModuleNumber number) {
-	uint8_t writedata[2];
-	uint8_t readdata[2];
-	writedata[0] = 0x00;
-	writedata[1] = 0x00;
-	readdata[0] = 0x00;
-	readdata[1] = 0x00;
+	uint8_t writedata[2] = {};
+	uint8_t readdata[2] = {};
 	rwAllMultiByte(readdata, writedata, 2);
-	converted_raw[static_cast<size_t>(number)] = (readdata[0] << 8) + readdata[1];
+	converted_raw[static_cast<size_t>(number)] = (readdata[1] << 5) + (readdata[0] >> 3);
 	ComPc::getInstance()->printf("respons [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
 }
 

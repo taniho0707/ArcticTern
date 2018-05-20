@@ -22,16 +22,16 @@ enum class LineSensorModuleNumber : uint8_t {
 };
 
 // MAX11125のレジスタアドレス一覧
-// これに送るデータを加算して使用する
-enum class MAX11125Commands : uint16_t {
-	ADC_MODE_CONTROL = 0x0000,
-	ADC_CONFIGURATION = 0x8000,
-	UNIPOLAR = 0x8800,
-	BIPOLAR = 0x9000,
-	RANGE = 0x9800,
-	CUSTOM_SCAN0 = 0xA000,
-	CUSTOM_SCAN1 = 0xA800,
-	SAMPLE_SET = 0xB000,
+// これが1バイト目で，さらにコマンドを加算して使用する
+enum class MAX11125Commands : uint8_t {
+	ADC_MODE_CONTROL = 0x00,
+	ADC_CONFIGURATION = 0x80,
+	UNIPOLAR = 0x88,
+	BIPOLAR = 0x90,
+	RANGE = 0x98,
+	CUSTOM_SCAN0 = 0xA0,
+	CUSTOM_SCAN1 = 0xA8,
+	SAMPLE_SET = 0xB0,
 };
 
 class LineSensorModule : protected Spi {

@@ -149,10 +149,7 @@ int Spi::rwAllMultiByte(
 	const uint8_t num_readwrite)
 {
 	setChipSelect();
-	// for (int i=0; i<num_readwrite; ++i) {
-	// 	HAL_SPI_TransmitReceive(&port, &data_write[i], &data_read[i], 1, 1000);
-	// }
-	HAL_SPI_TransmitReceive(&port, data_write, data_read, 1, 1000);
+	HAL_SPI_TransmitReceive(&port, data_write, data_read, num_readwrite, 1000);
 	resetChipSelect();
 	return 0;
 }
