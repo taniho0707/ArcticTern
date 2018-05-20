@@ -67,11 +67,17 @@ bool LineSensorModule::whoami(){
 
 void LineSensorModule::readSingleChannel(LineSensorModuleNumber number) {
 	// シングルスキャンしてconverted_rawに代入する
+	/// @todo シャットダウンするように変更
 	std::vector<uint8_t> writedata(2);
 	std::vector<uint8_t> readdata(2);
-	writedata[0] = static_cast<uint8_t>(GyroCommands::WHO_AM_I) | 0x80;
+	writedata[0] = static_cast<uint8_t>(MAX11125Commands::ADC_MODE_CONTROL) |
+		0b0'0001'0000'00'00'1'10 |
+		(static_cast<uint16_t>(number) << 7);
+	writedata[1] = 0x00;
 	readdata[0] = 0x00;
-	auto retval = rwMultiByte(readdata, writedata, 1, 1);
+	readdata[1] = 0x00;
+	rwMultiByte(readdata, writedata, 1, 1);
+	converted_raw[static_cast<size_t>(number)] = readdata[1];
 }
 
 int16_t LineSensorModule::getSingleChannel(LineSensorModuleNumber number) {
