@@ -145,16 +145,14 @@ int Spi::rwMultiByte(
 }
 
 int Spi::rwAllMultiByte(
-	std::vector<uint8_t> &data_read, const std::vector<uint8_t> &data_write,
+	uint8_t* data_read, const uint8_t* data_write,
 	const uint8_t num_readwrite)
 {
-	if(data_read.size() < num_readwrite || data_write.capacity() < num_readwrite) return -1;
-	int retval = 0;
-	
 	setChipSelect();
-	for (int i=0; i<num_readwrite; ++i) {
-		HAL_SPI_TransmitReceive(&port, &data_write[i], &data_read[i], 1, 1000);
-	}
+	// for (int i=0; i<num_readwrite; ++i) {
+	// 	HAL_SPI_TransmitReceive(&port, &data_write[i], &data_read[i], 1, 1000);
+	// }
+	HAL_SPI_TransmitReceive(&port, data_write, data_read, 1, 1000);
 	resetChipSelect();
 	return 0;
 }

@@ -5,12 +5,17 @@
 
 #include "Util.h"
 
+#include "ComPc.h"
+
 LineSensorModule::LineSensorModule() :
 	Spi()
 {
 	for (int i=0; i<8; ++i) {
 		converted_raw[i] = 0;
 	}
+}
+
+LineSensorModule::~LineSensorModule() {
 }
 
 void LineSensorModule::initialize(
@@ -68,16 +73,26 @@ bool LineSensorModule::whoami(){
 void LineSensorModule::readSingleChannel(LineSensorModuleNumber number) {
 	// シングルスキャンしてconverted_rawに代入する
 	/// @todo シャットダウンするように変更
-	std::vector<uint8_t> writedata(2);
-	std::vector<uint8_t> readdata(2);
-	writedata[0] = static_cast<uint8_t>(MAX11125Commands::ADC_MODE_CONTROL) |
-		0b0'0001'0000'00'00'1'10 |
-		(static_cast<uint16_t>(number) << 7);
+	uint8_t writedata[2];
+	uint8_t readdata[2];
+	writedata[0] = 0b0'0001'000 | (static_cast<uint8_t>(number) >> 1);
+	writedata[1] = 0b0'00'00'1'10 | (static_cast<uint8_t>(number) << 7);
+	readdata[0] = 0x00;
+	readdata[1] = 0x00;
+	rwAllMultiByte(readdata, writedata, 2);
+	ComPc::getInstance()->printf("command [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
+}
+
+void LineSensorModule::updateSingleChannel(LineSensorModuleNumber number) {
+	uint8_t writedata[2];
+	uint8_t readdata[2];
+	writedata[0] = 0x00;
 	writedata[1] = 0x00;
 	readdata[0] = 0x00;
 	readdata[1] = 0x00;
-	rwMultiByte(readdata, writedata, 1, 1);
-	converted_raw[static_cast<size_t>(number)] = readdata[1];
+	rwAllMultiByte(readdata, writedata, 2);
+	converted_raw[static_cast<size_t>(number)] = (readdata[0] << 8) + readdata[1];
+	ComPc::getInstance()->printf("respons [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
 }
 
 int16_t LineSensorModule::getSingleChannel(LineSensorModuleNumber number) {

@@ -39,7 +39,7 @@ protected:
 
 	// 複数バイトの同時書き込み読み出しを行う関数です
 	int rwAllMultiByte(
-		std::vector<uint8_t> &data_read, const std::vector<uint8_t> &data_write,
+		uint8_t* data_read, const uint8_t* data_write,
 		const uint8_t num_readwrite);
 
 public:

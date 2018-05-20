@@ -4,6 +4,9 @@
 #include "ComPc.h"
 #include "Gyro.h"
 
+/// @todo LineSensorクラスに変更する
+#include "LineSensorModule.h"
+
 int main(void) {
 	HAL_Init();
 	SystemClock_Config();
@@ -76,7 +79,21 @@ int main(void) {
 
 	// ADC CONN 3
 	{
-		
+		LineSensorModule linesensormodule;
+		linesensormodule.initialize(
+			SPI2, GPIOB, GPIO_PIN_11,
+			GPIOD, GPIO_PIN_14, EXTI15_10_IRQn,
+			GPIOB, GPIO_PIN_12);
+		int16_t data;
+
+		while(1) {
+			linesensormodule.readSingleChannel(LineSensorModuleNumber::S0);
+			HAL_Delay(1);
+			linesensormodule.updateSingleChannel(LineSensorModuleNumber::S0);
+			data = linesensormodule.getSingleChannel(LineSensorModuleNumber::S0);
+			ComPc::getInstance()->printf("(%2X) %d\n", data, data);
+			HAL_Delay(100);
+		}
 	}
 
 	while (1) {

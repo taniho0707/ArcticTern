@@ -62,6 +62,7 @@ public:
 	bool configAutomatic();
 
 	void readSingleChannel(LineSensorModuleNumber number);
+	void updateSingleChannel(LineSensorModuleNumber number);
 
 	int16_t getSingleChannel(LineSensorModuleNumber number);
 };
