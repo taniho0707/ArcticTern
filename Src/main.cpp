@@ -4,8 +4,7 @@
 #include "ComPc.h"
 #include "Gyro.h"
 
-/// @todo LineSensorクラスに変更する
-#include "LineSensorModule.h"
+#include "LineSensor.h"
 
 int main(void) {
 	HAL_Init();
@@ -66,7 +65,7 @@ int main(void) {
 	}
 
 	// HAL_Delay(300);
-	// HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
 	// HAL_Delay(300);
 
 	ComPc::getInstance()->printf("Hello STM32F7 Series!\n");
@@ -79,20 +78,23 @@ int main(void) {
 
 	// ADC CONN 3
 	{
-		LineSensorModule linesensormodule;
-		linesensormodule.initialize(
-			SPI2, GPIOB, GPIO_PIN_11,
-			GPIOD, GPIO_PIN_14, EXTI15_10_IRQn,
-			GPIOB, GPIO_PIN_12);
-		linesensormodule.configAutomatic();
+		// LineSensorModule linesensormodule;
+		// linesensormodule.initialize(
+		// 	SPI2, GPIOB, GPIO_PIN_11,
+		// 	GPIOD, GPIO_PIN_14, EXTI15_10_IRQn,
+		// 	GPIOB, GPIO_PIN_12);
+		// linesensormodule.configAutomatic();
+		LineSensor *linesensor = LineSensor::getInstance();
+		linesensor->initialize();
+		
 		HAL_Delay(1);
 		int16_t data;
 
 		while(1) {
-			linesensormodule.readSingleChannel(LineSensorModuleNumber::S0);
-			HAL_Delay(1);
-			linesensormodule.updateSingleChannel(LineSensorModuleNumber::S0);
-			data = linesensormodule.getSingleChannel(LineSensorModuleNumber::S0);
+			linesensor->readSingleChannel(3-1, LineSensorModuleNumber::S0);
+			HAL_Delay(100);
+			// linesensor.updateSingleChannel(LineSensorModuleNumber::S0);
+			data = linesensor->getSingleChannel(3-1, LineSensorModuleNumber::S0);
 			ComPc::getInstance()->printf("(%4X) %d\n", data, data);
 			HAL_Delay(100);
 		}

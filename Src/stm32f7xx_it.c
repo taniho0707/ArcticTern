@@ -35,6 +35,8 @@
 #include "stm32f7xx.h"
 #include "stm32f7xx_it.h"
 
+#include "LineSensor.h"
+
 /**
 * @brief This function handles Non maskable interrupt.
 */
@@ -101,9 +103,17 @@ void SysTick_Handler(void) {
 
 
 void EXTI15_10_IRQHandler() {
+	/// 割り込みの確認 @todo 削除する
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+
 	/// @todo 全ピンの内容を書く
 	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET) {
+		// おまじない．割り込みフラグの解除
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_14);
+
+		// Sensor3のデータを取得する
+		static LineSensor* linesensor = LineSensor::getInstance();
+		linesensor->interrupt(3 - 1);
 	}
 }
 

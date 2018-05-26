@@ -50,8 +50,9 @@ void LineSensorModule::initialize(
 
 		/// @todo 優先順位
 		HAL_NVIC_SetPriority(irq, 8, 8);
-		// HAL_NVIC_EnableIRQ(irq);
+		HAL_NVIC_EnableIRQ(irq);
 	}
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
 }
 
 bool LineSensorModule::configAutomatic(){
@@ -67,7 +68,7 @@ bool LineSensorModule::configAutomatic(){
 	HAL_SPI_TransmitReceive(&port, writedata, readdata, 2, 1000);
 	resetChipSelect();
 
-	ComPc::getInstance()->printf("command [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
+	// ComPc::getInstance()->printf("command [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
 
 	return true;
 }
@@ -92,7 +93,7 @@ void LineSensorModule::readSingleChannel(LineSensorModuleNumber number) {
 	writedata[0] = 0b0'0001'000 | (static_cast<uint8_t>(number) >> 1);
 	writedata[1] = 0b0'00'00'1'00 | (static_cast<uint8_t>(number) << 7);
 	rwAllMultiByte(readdata, writedata, 2);
-	ComPc::getInstance()->printf("command [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
+	// ComPc::getInstance()->printf("command [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
 }
 
 void LineSensorModule::updateSingleChannel(LineSensorModuleNumber number) {
@@ -100,7 +101,7 @@ void LineSensorModule::updateSingleChannel(LineSensorModuleNumber number) {
 	uint8_t readdata[2] = {};
 	rwAllMultiByte(readdata, writedata, 2);
 	converted_raw[static_cast<size_t>(number)] = (readdata[1] << 5) + (readdata[0] >> 3);
-	ComPc::getInstance()->printf("respons [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
+	// ComPc::getInstance()->printf("respons [%2X %2X] - [%2X %2X]\n", writedata[0], writedata[1], readdata[0], readdata[1]);
 }
 
 int16_t LineSensorModule::getSingleChannel(LineSensorModuleNumber number) {
