@@ -1,6 +1,5 @@
-
 /**
- * @file Usart.h
+ * @file ComPc.h
  */
 #pragma once
 
@@ -17,8 +16,10 @@ private:
 
 	explicit ComPc(USART_TypeDef *port);
 
+	uint8_t bit2hex(const uint8_t val);
+
 	DMA_InitTypeDef DMA_InitStructure;
-	UART_HandleTypeDef huart;
+	UART_HandleTypeDef huart1;
 
 public:
 
