@@ -34,6 +34,8 @@ private:
     I2C_HandleTypeDef hi2c1;
     DMA_HandleTypeDef hdma_i2c1_tx;
 
+    uint8_t i2c_0c0d_data[2];
+
     std::array<LedFlickParams, 9> flick_params;
 
     Led();

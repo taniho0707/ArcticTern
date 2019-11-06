@@ -47,70 +47,125 @@ Led::Led(){
     HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     __HAL_RCC_I2C1_CLK_ENABLE();
-  
-    // /* I2C1 DMA Init */
-    // /* I2C1_TX Init */
-    // hdma_i2c1_tx.Instance = DMA1_Stream6;
-    // hdma_i2c1_tx.Init.Channel = DMA_CHANNEL_1;
-    // hdma_i2c1_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    // hdma_i2c1_tx.Init.PeriphInc = DMA_PINC_DISABLE;
-    // hdma_i2c1_tx.Init.MemInc = DMA_MINC_ENABLE;
-    // hdma_i2c1_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    // hdma_i2c1_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    // hdma_i2c1_tx.Init.Mode = DMA_NORMAL;
-    // hdma_i2c1_tx.Init.Priority = DMA_PRIORITY_LOW;
-    // hdma_i2c1_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    // HAL_DMA_Init(&hdma_i2c1_tx);
 
-    // __HAL_LINKDMA(i2cHandle, hdmatx, hdma_i2c1_tx);
+    /* I2C1 DMA Init */
+    /* I2C1_TX Init */
+    hdma_i2c1_tx.Instance = DMA1_Stream6;
+    hdma_i2c1_tx.Init.Channel = DMA_CHANNEL_1;
+    hdma_i2c1_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_i2c1_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_i2c1_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_i2c1_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_i2c1_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_i2c1_tx.Init.Mode = DMA_NORMAL;
+    hdma_i2c1_tx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_i2c1_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    HAL_DMA_Init(&hdma_i2c1_tx);
+
+    __HAL_LINKDMA(&hi2c1, hdmatx, hdma_i2c1_tx);
+
+    i2c_0c0d_data[0] = 0x00;
+    i2c_0c0d_data[1] = 0x00;
+
+    uint8_t data[2] = {0x00, 0x01};
+    HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+    HAL_Delay(1);
 }
 
 void Led::on(LedNumbers num){
+    uint8_t data[2] = { 0 };
     switch (num) {
     case LedNumbers::TOP :
         HAL_GPIO_WritePin(gpio_port, gpio_channel, GPIO_PIN_SET);
         break;
     case LedNumbers::LED0 :
-        uint8_t data[2] = {0x00, 0x01};
+        i2c_0c0d_data[0] |= 0x01;
+        data[0] = 0x0C; data[1] = i2c_0c0d_data[0];
         HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
-
-        HAL_Delay(1);
-        data[0] = 0x0C;
-        data[1] = 0x55;
+        break;
+    case LedNumbers::LED1 :
+        i2c_0c0d_data[0] |= 0x04;
+        data[0] = 0x0C; data[1] = i2c_0c0d_data[0];
         HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
-
-        HAL_Delay(1);
-        data[0] = 0x0D;
-        data[1] = 0x55;
+        break;
+    case LedNumbers::LED2 :
+        i2c_0c0d_data[0] |= 0x10;
+        data[0] = 0x0C; data[1] = i2c_0c0d_data[0];
         HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
-        // uint8_t data[14];
-        // data[0] = 0x80; //0b 100 00000
-        // data[1] = 0x91; //0b 100 00001
-        // data[2] = 0x05; //0b 00 000 101
-        // data[3] = 0x00; //0x 00
-        // data[4] = 0x00; //0x 00
-        // data[5] = 0x00; //0x 00
-        // data[6] = 0x00; //0x 00
-        // data[7] = 0x00; //0x 00
-        // data[8] = 0x00; //0x 00
-        // data[9] = 0x00; //0x 00
-        // data[10] = 0x00; //0x 00
-        // data[11] = 0xFF; //0x FF
-        // data[12] = 0x00; //0x 00
-        // data[13] = 0x01; //0b 00 00 00 01
-        // status = HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 14, 1000);
-        // // HAL_I2C_Mem_Write(&hi2c1, 0x1, data[0], 1, &data[1], 13, 1000);
+        break;
+    case LedNumbers::LED3 :
+        i2c_0c0d_data[0] |= 0x40;
+        data[0] = 0x0C; data[1] = i2c_0c0d_data[0];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED4 :
+        i2c_0c0d_data[1] |= 0x01;
+        data[0] = 0x0D; data[1] = i2c_0c0d_data[1];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED5 :
+        i2c_0c0d_data[1] |= 0x04;
+        data[0] = 0x0D; data[1] = i2c_0c0d_data[1];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED6 :
+        i2c_0c0d_data[1] |= 0x10;
+        data[0] = 0x0D; data[1] = i2c_0c0d_data[1];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED7 :
+        i2c_0c0d_data[1] |= 0x40;
+        data[0] = 0x0D; data[1] = i2c_0c0d_data[1];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
         break;
     }
 }
 
 void Led::off(LedNumbers num){
+    uint8_t data[2] = { 0 };
     switch (num) {
     case LedNumbers::TOP :
         HAL_GPIO_WritePin(gpio_port, gpio_channel, GPIO_PIN_RESET);
         break;
     case LedNumbers::LED0 :
-        
+        i2c_0c0d_data[0] &= 0xFC;
+        data[0] = 0x0C; data[1] = i2c_0c0d_data[0];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED1 :
+        i2c_0c0d_data[0] &= 0xF3;
+        data[0] = 0x0C; data[1] = i2c_0c0d_data[0];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED2 :
+        i2c_0c0d_data[0] &= 0xCF;
+        data[0] = 0x0C; data[1] = i2c_0c0d_data[0];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED3 :
+        i2c_0c0d_data[0] &= 0x3F;
+        data[0] = 0x0C; data[1] = i2c_0c0d_data[0];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED4 :
+        i2c_0c0d_data[1] &= 0xFC;
+        data[0] = 0x0D; data[1] = i2c_0c0d_data[1];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED5 :
+        i2c_0c0d_data[1] &= 0xF3;
+        data[0] = 0x0D; data[1] = i2c_0c0d_data[1];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED6 :
+        i2c_0c0d_data[1] &= 0xCF;
+        data[0] = 0x0D; data[1] = i2c_0c0d_data[1];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
+        break;
+    case LedNumbers::LED7 :
+        i2c_0c0d_data[1] &= 0x3F;
+        data[0] = 0x0D; data[1] = i2c_0c0d_data[1];
+        HAL_I2C_Master_Transmit(&hi2c1, 0x1 << 1, data, 2, 1000);
         break;
     }}
 
