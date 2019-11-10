@@ -1,6 +1,9 @@
 #include "main.h"
 
 #include "Led.h"
+#include "Switch.h"
+#include "ComPc.h"
+#include "Speaker.h"
 
 void SystemClock_Config(void);
 
@@ -18,38 +21,22 @@ int main(void) {
     Led* led = Led::getInstance();
     led->on(LedNumbers::TOP);
 
+    Timer::start();
+
+    ComPc* compc = ComPc::getInstance();
+    compc->printf("Hello ArcticTern!\n");
+
+    Switch* sw = Switch::getInstance();
+
+    Speaker* speaker = Speaker::getInstance();
+    speaker->playMusic(MusicNumber::KIRBY3_POWERON);
+
     while (1) {
-        led->on(LedNumbers::LED0);
-        HAL_Delay(200);
-        led->on(LedNumbers::LED1);
-        HAL_Delay(200);
-        led->on(LedNumbers::LED2);
-        HAL_Delay(200);
-        led->on(LedNumbers::LED3);
-        HAL_Delay(200);
-        led->on(LedNumbers::LED4);
-        HAL_Delay(200);
-        led->on(LedNumbers::LED5);
-        HAL_Delay(200);
-        led->on(LedNumbers::LED6);
-        HAL_Delay(200);
-        led->on(LedNumbers::LED7);
-        HAL_Delay(200);
-        led->off(LedNumbers::LED0);
-        HAL_Delay(200);
-        led->off(LedNumbers::LED1);
-        HAL_Delay(200);
-        led->off(LedNumbers::LED2);
-        HAL_Delay(200);
-        led->off(LedNumbers::LED3);
-        HAL_Delay(200);
-        led->off(LedNumbers::LED4);
-        HAL_Delay(200);
-        led->off(LedNumbers::LED5);
-        HAL_Delay(200);
-        led->off(LedNumbers::LED6);
-        HAL_Delay(200);
-        led->off(LedNumbers::LED7);
+        if (sw->isPushing(SwitchNumbers::SW1)) {
+            led->on(LedNumbers::LED0);
+        } else {
+            led->off(LedNumbers::LED0);
+        }
         HAL_Delay(200);
     }
 }
