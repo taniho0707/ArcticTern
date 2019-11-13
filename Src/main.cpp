@@ -5,6 +5,8 @@
 #include "ComPc.h"
 #include "Speaker.h"
 
+#include "LineSensorModule.h"
+
 void SystemClock_Config(void);
 
 /**
@@ -30,6 +32,48 @@ int main(void) {
 
     Speaker* speaker = Speaker::getInstance();
     speaker->playMusic(MusicNumber::KIRBY3_POWERON);
+
+    LineSensorModule lm;
+    lm.initialize(
+        SPI3, GPIOC, GPIO_PIN_9,
+        GPIOD, GPIO_PIN_15, EXTI15_10_IRQn,
+        GPIOC, GPIO_PIN_8);
+
+    HAL_Delay(1);
+    led->on(LedNumbers::LED0);
+
+    lm.configAutomatic();
+
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = GPIO_PIN_0;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(GPIOH, GPIO_PIN_0, GPIO_PIN_SET);
+
+    lm.readAllChannel();
+    led->on(LedNumbers::LED1);
+
+    while(1) {
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+        for(int i=0;i<100;++i) {}
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+
+        led->on(LedNumbers::LED2);
+        HAL_Delay(100);
+
+        while(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_15) == 1);
+        led->on(LedNumbers::LED3);
+
+        lm.updateAllChannel();
+        led->on(LedNumbers::LED4);
+
+        for (int i=0; i<8; ++i) {
+            compc->printf("%4d, ", lm.getSingleChannel(static_cast<LineSensorModuleNumber>(i)));
+        }
+        compc->printf("\n");
+    }
 
     while (1) {
         if (sw->isPushing(SwitchNumbers::SW1)) {

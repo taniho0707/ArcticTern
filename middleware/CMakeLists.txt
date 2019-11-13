@@ -12,4 +12,5 @@ file(GLOB SRCS
 add_library(arcticmiddleware STATIC ${SRCS})
 
 target_link_libraries(arcticmiddleware
+		arcticutil
 		hal)
