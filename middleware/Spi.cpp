@@ -39,11 +39,11 @@ void Spi::initialize(SPI_TypeDef *spi, GPIO_TypeDef *gpio, uint16_t gpiopin) {
 		GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
 		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 	} else if (spi == SPI4) {
-		// __HAL_RCC_SPI4_CLK_ENABLE();
-		// __HAL_RCC_GPIOE_CLK_ENABLE();
-		// GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
-		// GPIO_InitStruct.Alternate = GPIO_AF5_SPI4;
-		// HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+        __HAL_RCC_SPI4_CLK_ENABLE();
+        __HAL_RCC_GPIOE_CLK_ENABLE();
+        GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
+        GPIO_InitStruct.Alternate = GPIO_AF5_SPI4;
+        HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 	} else if (spi == SPI5) {
 		// __HAL_RCC_SPI5_CLK_ENABLE();
 	} else if (spi == SPI6) {
@@ -159,3 +159,13 @@ int Spi::rwAllMultiByte(
 	resetChipSelect();
 	return 0;
 }
+
+// int Spi::rwAllMultiByteIt(
+// 	uint8_t* data_read, uint8_t* data_write,
+// 	const uint8_t num_readwrite)
+// {
+// 	setChipSelect();
+// 	HAL_SPI_TransmitReceive_IT(&port, data_write, data_read, num_readwrite);
+// 	resetChipSelect();
+// 	return 0;
+// }

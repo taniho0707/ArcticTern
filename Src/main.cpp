@@ -4,7 +4,9 @@
 #include "Switch.h"
 #include "ComPc.h"
 #include "Speaker.h"
+#include "Qspi.h"
 
+#include "Gyro.h"
 #include "LineSensorModule.h"
 
 void SystemClock_Config(void);
@@ -33,6 +35,29 @@ int main(void) {
     Speaker* speaker = Speaker::getInstance();
     speaker->playMusic(MusicNumber::KIRBY3_POWERON);
 
+    Gyro* gyro = Gyro::getInstance();
+    gyro->whoami();
+
+    Qspi* qspi = Qspi::getInstance();
+    bool return_qspi = qspi->comManufactureDevice();
+    if (return_qspi) compc->printf("QSPI 1LINE Initialize Success!\n");
+    else compc->printf("XXX QSPI 1LINE Initialize Failed... XXX\n");
+
+    uint8_t qspidata[2];
+    return_qspi = qspi->comManufactureDeviceQuad(qspidata);
+    if (return_qspi) compc->printf("QSPI 4LINE Initialize Success!\n");
+    else compc->printf("XXX QSPI 4LINE Initialize Failed... XXX\n");
+    compc->printf("%02X %02X\n", qspidata[0], qspidata[1]);
+
+    compc->printf("%02X %02X %02X\n", qspi->comReadStatusRegister1(), qspi->comReadStatusRegister2(), qspi->comReadStatusRegister3());
+
+    uint8_t qspi_blankdata[256];
+    compc->printf("* QSPI Data\n");
+    qspi->comFastReadData(0x0, qspi_blankdata, 256);
+    for (int i=0; i<16; ++i) {
+        compc->printf("%2d: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", i, qspi_blankdata[16*i], qspi_blankdata[16*i+1], qspi_blankdata[16*i+2], qspi_blankdata[16*i+3], qspi_blankdata[16*i+4], qspi_blankdata[16*i+5], qspi_blankdata[16*i+6], qspi_blankdata[16*i+7], qspi_blankdata[16*i+8], qspi_blankdata[16*i+9], qspi_blankdata[16*i+10], qspi_blankdata[16*i+11], qspi_blankdata[16*i+12], qspi_blankdata[16*i+13], qspi_blankdata[16*i+14], qspi_blankdata[16*i+15]);
+    }
+
     LineSensorModule lm;
     lm.initialize(
         SPI3, GPIOC, GPIO_PIN_9,
@@ -55,24 +80,110 @@ int main(void) {
     lm.readAllChannel();
     led->on(LedNumbers::LED1);
 
+    float ang;
+
+    led->off(LedNumbers::LED0);
+    led->off(LedNumbers::LED1);
+    led->off(LedNumbers::LED2);
+    led->off(LedNumbers::LED3);
+    led->off(LedNumbers::LED4);
+    led->off(LedNumbers::LED5);
+    led->off(LedNumbers::LED6);
+    led->off(LedNumbers::LED7);
+
     while(1) {
-        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
-        for(int i=0;i<100;++i) {}
-        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+        // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+        // for(int i=0;i<100;++i) {}
+        // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
 
-        led->on(LedNumbers::LED2);
-        HAL_Delay(100);
+        // led->on(LedNumbers::LED2);
+        // HAL_Delay(100);
 
-        while(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_15) == 1);
-        led->on(LedNumbers::LED3);
+        // while(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_15) == 1);
+        // led->on(LedNumbers::LED3);
 
-        lm.updateAllChannel();
-        led->on(LedNumbers::LED4);
+        // lm.updateAllChannel();
+        // led->on(LedNumbers::LED4);
 
-        for (int i=0; i<8; ++i) {
-            compc->printf("%4d, ", lm.getSingleChannel(static_cast<LineSensorModuleNumber>(i)));
+        // for (int i=0; i<8; ++i) {
+        //     compc->printf("%4d, ", lm.getSingleChannel(static_cast<LineSensorModuleNumber>(i)));
+        // }
+        // compc->printf("\n");
+        ang = gyro->getTotalAngle();
+        if (ang < 45) {
+            led->off(LedNumbers::LED0);
+            led->off(LedNumbers::LED1);
+            led->off(LedNumbers::LED2);
+            led->off(LedNumbers::LED3);
+            led->off(LedNumbers::LED4);
+            led->off(LedNumbers::LED5);
+            led->off(LedNumbers::LED6);
+            led->on(LedNumbers::LED7);
+        } else if (ang < 90) {
+            led->off(LedNumbers::LED0);
+            led->off(LedNumbers::LED1);
+            led->off(LedNumbers::LED2);
+            led->off(LedNumbers::LED3);
+            led->off(LedNumbers::LED4);
+            led->off(LedNumbers::LED5);
+            led->on(LedNumbers::LED6);
+            led->off(LedNumbers::LED7);
+        } else if (ang < 135) {
+            led->off(LedNumbers::LED0);
+            led->off(LedNumbers::LED1);
+            led->off(LedNumbers::LED2);
+            led->off(LedNumbers::LED3);
+            led->off(LedNumbers::LED4);
+            led->on(LedNumbers::LED5);
+            led->off(LedNumbers::LED6);
+            led->off(LedNumbers::LED7);
+        } else if (ang < 180) {
+            led->off(LedNumbers::LED0);
+            led->off(LedNumbers::LED1);
+            led->off(LedNumbers::LED2);
+            led->off(LedNumbers::LED3);
+            led->on(LedNumbers::LED4);
+            led->off(LedNumbers::LED5);
+            led->off(LedNumbers::LED6);
+            led->off(LedNumbers::LED7);
+        } else if (ang < 225) {
+            led->off(LedNumbers::LED0);
+            led->off(LedNumbers::LED1);
+            led->off(LedNumbers::LED2);
+            led->on(LedNumbers::LED3);
+            led->off(LedNumbers::LED4);
+            led->off(LedNumbers::LED5);
+            led->off(LedNumbers::LED6);
+            led->off(LedNumbers::LED7);
+        } else if (ang < 270) {
+            led->off(LedNumbers::LED0);
+            led->off(LedNumbers::LED1);
+            led->on(LedNumbers::LED2);
+            led->off(LedNumbers::LED3);
+            led->off(LedNumbers::LED4);
+            led->off(LedNumbers::LED5);
+            led->off(LedNumbers::LED6);
+            led->off(LedNumbers::LED7);
+        } else if (ang < 315) {
+            led->off(LedNumbers::LED0);
+            led->on(LedNumbers::LED1);
+            led->off(LedNumbers::LED2);
+            led->off(LedNumbers::LED3);
+            led->off(LedNumbers::LED4);
+            led->off(LedNumbers::LED5);
+            led->off(LedNumbers::LED6);
+            led->off(LedNumbers::LED7);
+        } else {
+            led->on(LedNumbers::LED0);
+            led->off(LedNumbers::LED1);
+            led->off(LedNumbers::LED2);
+            led->off(LedNumbers::LED3);
+            led->off(LedNumbers::LED4);
+            led->off(LedNumbers::LED5);
+            led->off(LedNumbers::LED6);
+            led->off(LedNumbers::LED7);
         }
-        compc->printf("\n");
+
     }
 
     while (1) {

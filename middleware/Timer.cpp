@@ -9,7 +9,7 @@
 #include "Led.h"
 // #include "Battery.h"
 #include "Speaker.h"
-// #include "Gyro.h"
+#include "Gyro.h"
 // #include "WallSensor.h"
 // #include "ModeSelect.h"
 // #include "GapCounter.h"
@@ -35,7 +35,7 @@ void Timer::interrupt(){
         // static Battery* battery = Battery::getInstance();
         static Speaker* speaker = Speaker::getInstance();
         // static Encoder* encoder = Encoder::getInstance();
-        // static Gyro* gy = Gyro::getInstance();
+        static Gyro* gy = Gyro::getInstance();
         // static MotorControl* motor = MotorControl::getInstance();
         // static WallSensor* ws = WallSensor::getInstance();
         // static VelocityControl* vc = VelocityControl::getInstance();
@@ -46,7 +46,7 @@ void Timer::interrupt(){
         // battery->interrupt();
         speaker->interrupt();
         // encoder->interrupt();
-        // gy->interrupt();
+        gy->interrupt();
         // motor->interrupt();
         // ws->interrupt();
         // vc->interrupt();
