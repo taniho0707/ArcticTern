@@ -61,17 +61,7 @@ public:
 
     // Public Functions
 
-	// void send1byte(char data);
-	// void send1byte(uint8_t data);
-
-	// void sendnbyte(char *c, const int n);
-	// void sendnbyte(std::vector<uint8_t>& c, const int n);
-
-	// void sendbydma(const char *c, const int n);
-	// void sendbydma(const std::vector<uint8_t>& c, const int n);
-
-	// bool recv1byte(uint8_t& data);
-	// bool recvnbyte(std::vector<uint8_t>& c, const int n);
+    void waitUntilBusy();
 
     static Qspi* getInstance();
 };

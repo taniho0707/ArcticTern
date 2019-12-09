@@ -39,17 +39,40 @@ int main(void) {
     gyro->whoami();
 
     Qspi* qspi = Qspi::getInstance();
-    bool return_qspi = qspi->comManufactureDevice();
-    if (return_qspi) compc->printf("QSPI 1LINE Initialize Success!\n");
-    else compc->printf("XXX QSPI 1LINE Initialize Failed... XXX\n");
+    // bool return_qspi = qspi->comManufactureDevice();
+    // if (return_qspi) compc->printf("QSPI 1LINE Initialize Success!\n");
+    // else compc->printf("XXX QSPI 1LINE Initialize Failed... XXX\n");
+
+    compc->printf("%02X %02X %02X\n", qspi->comReadStatusRegister1(), qspi->comReadStatusRegister2(), qspi->comReadStatusRegister3());
+    // qspi->comWriteEnable();
+    // qspi->comWriteStatusRegister2(0x02);
+    // compc->printf("%02X %02X %02X\n", qspi->comReadStatusRegister1(), qspi->comReadStatusRegister2(), qspi->comReadStatusRegister3());
 
     uint8_t qspidata[2];
-    return_qspi = qspi->comManufactureDeviceQuad(qspidata);
+    bool return_qspi = qspi->comManufactureDeviceQuad(qspidata);
     if (return_qspi) compc->printf("QSPI 4LINE Initialize Success!\n");
     else compc->printf("XXX QSPI 4LINE Initialize Failed... XXX\n");
     compc->printf("%02X %02X\n", qspidata[0], qspidata[1]);
 
-    compc->printf("%02X %02X %02X\n", qspi->comReadStatusRegister1(), qspi->comReadStatusRegister2(), qspi->comReadStatusRegister3());
+    qspi->comGlobalBlockUnlock();
+
+    uint8_t qspi_writedata[256];
+    for (int i=0; i<256; ++i) {
+        qspi_writedata[i] = i;
+    }
+    compc->printf("Erase: WriteEnable\n");
+    qspi->comWriteEnable();
+    compc->printf("Erase: BlockErase\n");
+    qspi->comBlockErase(0x00);
+    compc->printf("Erase: WaitUntilBusy\n");
+    qspi->waitUntilBusy();
+    
+    compc->printf("Program: WriteEnable\n");
+    qspi->comWriteEnable();
+    compc->printf("Program: PageProgram\n");
+    qspi->comQuadPageProgram(0x00, qspi_writedata);
+    compc->printf("Program: WaitUntilBusy\n");
+    qspi->waitUntilBusy();
 
     uint8_t qspi_blankdata[256];
     compc->printf("* QSPI Data\n");

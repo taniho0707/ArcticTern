@@ -127,7 +127,7 @@ bool Qspi::comManufactureDeviceQuad(uint8_t* data) {
     qspi_typedef.Address = 0x00000000;
     qspi_typedef.AddressSize = QSPI_ADDRESS_24_BITS;
     qspi_typedef.AddressMode = QSPI_ADDRESS_4_LINES;
-    qspi_typedef.AlternateBytes = 0x00;
+    qspi_typedef.AlternateBytes = 0xF0;
     qspi_typedef.AlternateBytesSize = QSPI_ALTERNATE_BYTES_8_BITS;
     qspi_typedef.AlternateByteMode = QSPI_ALTERNATE_BYTES_4_LINES;
     qspi_typedef.DummyCycles = 4;
@@ -433,81 +433,37 @@ void Qspi::comGlobalBlockUnlock() {
 }
 
 
+void Qspi::waitUntilBusy() {
+    QSPI_CommandTypeDef qspi_typedef;
+    qspi_typedef.Instruction = 0x05;
+    qspi_typedef.InstructionMode = QSPI_INSTRUCTION_1_LINE;
+    qspi_typedef.Address = 0x0;
+    qspi_typedef.AddressSize = QSPI_ADDRESS_24_BITS;
+    qspi_typedef.AddressMode = QSPI_ADDRESS_NONE;
+    qspi_typedef.AlternateBytes = 0x00;
+    qspi_typedef.AlternateBytesSize = QSPI_ALTERNATE_BYTES_8_BITS;
+    qspi_typedef.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
+    qspi_typedef.DummyCycles = 0;
+    qspi_typedef.NbData = 1;
+    qspi_typedef.DataMode = QSPI_DATA_1_LINE;
+    qspi_typedef.DdrMode = QSPI_DDR_MODE_DISABLE;
+    qspi_typedef.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
+    qspi_typedef.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+
+    QSPI_AutoPollingTypeDef polling_typedef;
+    polling_typedef.Match = 0x00;
+    polling_typedef.Mask = 0x01;
+    polling_typedef.Interval = 0x100;
+    polling_typedef.StatusBytesSize = 1;
+    polling_typedef.MatchMode = QSPI_MATCH_MODE_AND;
+    polling_typedef.AutomaticStop = QSPI_AUTOMATIC_STOP_ENABLE;
+
+    HAL_QSPI_AutoPolling(&port, &qspi_typedef, &polling_typedef, 1000);
+}
+
+
 Qspi* Qspi::getInstance() {
     static Qspi instance;
     return &instance;
 }
-
-// Usart::Usart(UART_HandleTypeDef uart){
-// 	port = uart;
-// }
-
-// void Usart::setTypeDef(UART_HandleTypeDef uart){
-// 	port = uart;
-// }
-
-// uint8_t Usart::getChecksum(const uint8_t *data, const uint8_t num){
-// 	uint8_t cs = 0x00;
-// 	for (uint8_t i=0; i<num; i++) {
-// 		cs += data[i];
-// 	}
-// 	cs = ~cs;
-// 	++cs;
-// 	return cs;
-// }
-// uint8_t Usart::getChecksum(const std::vector<uint8_t>&data, const uint8_t num){
-// 	uint8_t cs = 0x00;
-// 	for (auto v : data) {
-// 		cs += v;
-// 	}
-// 	cs = ~cs;
-// 	++cs;
-// 	return cs;
-// }
-
-// void Usart::send1byte(char data){
-// 	uint8_t newdata = data;
-// 	HAL_UART_Transmit(&port, &newdata, 1, 1000);
-// 	// USART_SendData(usart_port, (uint16_t)data);
-// 	// while( USART_GetFlagStatus(usart_port, USART_FLAG_TXE) == RESET );
-// }
-// void Usart::send1byte(uint8_t data){
-// 	HAL_UART_Transmit(&port, &data, 1, 1000);
-// 	// USART_SendData(usart_port, (uint16_t)data);
-// 	// while( USART_GetFlagStatus(usart_port, USART_FLAG_TXE) == RESET );
-// }
-
-// void Usart::sendnbyte(char *data, const int len){
-// 	// int i;
-// 	// for(i=0; i<len; ++i) send1byte(data[i]);
-// 	HAL_UART_Transmit(&port, (uint8_t *)(data), len, 1000);
-// }
-// void Usart::sendnbyte(std::vector<uint8_t>& c, const int n){
-// 	for(auto v : c) send1byte(v);
-// }
-
-
-// void Usart::sendbydma(const char *data, const int len){
-// 	// strcpy(send_buf, data);
-// 	// DMA_ClearFlag(DMA2_Stream7, DMA_FLAG_TCIF7);
-// 	// DMA_Cmd(DMA2_Stream7, ENABLE);
-// 	// USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
-// }
-// void Usart::sendbydma(const std::vector<uint8_t>& c, const int n){
-// 	// USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
-// }
-
-// bool Usart::recv1byte(uint8_t& data){
-// 	// while(USART_GetFlagStatus(usart_port, USART_FLAG_RXNE) == RESET);
-// 	// data = USART_ReceiveData(usart_port);
-// 	return true;
-// }
-
-// bool Usart::recvnbyte(std::vector<uint8_t>& c, const int n){
-// 	// c.clear();
-// 	// for (int i=0; i<n; i++) {
-// 	// 	c.push_back(static_cast<uint8_t>(USART_ReceiveData(usart_port)));
-// 	// }
-// 	return true;
-// }
 
